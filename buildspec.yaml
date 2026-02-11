@@ -12,9 +12,8 @@ phases:
       - echo Build started on `date`
       - echo Running Maven Build...
       - mvn clean install -DskipTests
-      - echo Checking if target folder exists...
-      - ls -R target/*.jar  # Isse confirm ho jayega ki file bani hai
       - echo Building the Docker image...
+      # Ab ye Docker Hub limit error nahi dega
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
