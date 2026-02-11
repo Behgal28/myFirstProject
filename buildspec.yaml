@@ -10,7 +10,7 @@ phases:
       - echo Running Maven build...
       - mvn clean package -DskipTests
       # Rename snapshot jar to fixed name for Docker
-      - cp target/myFirstProject-0.0.1-SNAPSHOT.jar/myFirstProject-service.jar
+      - cp target/myFirstProject-0.0.1-SNAPSHOT.jar /myFirstProject-service.jar
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
   
   build:
