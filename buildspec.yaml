@@ -4,16 +4,14 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - REPOSITORY_URI=242185466800.dkr.ecr.ap-south-1.amazonaws.com/my-repo-springboot-crud-applications
+      # Sahi login command
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 242185466800.dkr.ecr.ap-south-1.amazonaws.com
+      - REPOSITORY_URI=242185466800.dkr.ecr.ap-south-1.amazonaws.com/my-repo-springboot-crud-applications
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
   build:
     commands:
       - echo Build started on `date`
-      - echo Running Maven Build...
       - mvn clean install -DskipTests
-      - echo Building the Docker image...
-      # Ab ye Docker Hub limit error nahi dega
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
