@@ -1,11 +1,15 @@
-# openjdk:17 ki jagah Amazon Corretto use karein
-FROM amazoncorretto:17-al2-jdk
 
+# Java 17 runtime (AWS recommended)
+FROM amazoncorretto:17
+
+# App directory
 WORKDIR /app
 
-# Ensure correct jar name (as per your pom.xml artifactId and version)
-COPY ./target/myFirstProject-0.0.1-SNAPSHOT.jar /app/myFirstProject.jar
+# Copy jar from target folder
+COPY target/myFirstProject.jar myFirstProject.jar
 
+# Expose Spring Boot port
 EXPOSE 8080
 
-CMD ["java", "-jar", "myFirstProject.jar"]
+# Run the application
+ENTRYPOINT ["java", "-jar", "myFirstProject.jar"]
