@@ -4,21 +4,32 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 339713037827.dkr.ecr.ap-south-1.amazonaws.com
-      - REPOSITORY_URI=339713037827.dkr.ecr.ap-south-1.amazonaws.com/my-repo-springboot-crud-applications
+      # Sahi Account ID 569206841712 use kiya hai
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 569206841712.dkr.ecr.ap-south-1.amazonaws.com
+      - REPOSITORY_URI=569206841712.dkr.ecr.ap-south-1.amazonaws.com/my-repo-springboot-crud-applications
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+
   build:
     commands:
       - echo Build started on `date`
-      # Maven build ko yahan rakhein taaki target folder fresh rahe
+      - echo Building JAR file with Maven...
       - mvn clean install -DskipTests
       - echo Building the Docker image...
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+
   post_build:
     commands:
-      - echo Pushing the Docker images...
+      - echo Build completed on `date`
+      - echo Pushing the Docker images to ECR...
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing image definitions file for ECS deployment...
+      # Ensure 'course-service' matches your ECS Task Definition Container Name
       - DOCKER_CONTAINER_NAME=course-service
       - printf '[{"name":"%s","imageUri":"%s"}]' $DOCKER_CONTAINER_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - cat imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
