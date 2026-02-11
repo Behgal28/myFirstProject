@@ -1,37 +1,28 @@
 version: 0.2
 
-env:
-  variables:
-    # YAHAN DHAYAN DEIN: Jo account ID aapke logs mein '242185466800' dikh rahi hai, wahi use karein
-    AWS_ACCOUNT_ID: "242185466800"
-    AWS_REGION: "ap-south-1"
-    REPO_NAME: "my-repo-springboot-crud-applications"
-    CONTAINER_NAME: "course-service"
-
 phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - REPOSITORY_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPO_NAME}
-      - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+      - REPOSITORY_URI=242185466800.dkr.ecr.ap-south-1.amazonaws.com/my-repo-springboot-crud-applications
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 242185466800.dkr.ecr.ap-south-1.amazonaws.com
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
   build:
     commands:
       - echo Build started on `date`
-      - echo Building JAR file...
+      - echo Running Maven Build...
       - mvn clean install -DskipTests
+      - echo Checking if target folder exists...
+      - ls -R target/*.jar  # Isse confirm ho jayega ki file bani hai
       - echo Building the Docker image...
-      # Sahi URI ke saath build karna zaroori hai
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
-      - echo Pushing the Docker images...
-      # Ab ye fail nahi hoga kyunki local image aur push tag match karenge
+      - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo Writing image definitions file...
-      - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"course-service","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
   files:
