@@ -6,7 +6,7 @@ phases:
       - echo Logging in to Amazon ECR...
       # Yahan humne account ID wahi rakhi hai jahan CodeBuild chal raha hai
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 569206841712.dkr.ecr.ap-south-1.amazonaws.com
-      - REPOSITORY_URI=569206841712.dkr.ecr.ap-south-1.amazonaws.com/my-repo-springboot-crud-applications
+      - REPOSITORY_URI=569206841712.dkr.ecr.ap-south-1.amazonaws.com/javaspringboot-registry
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
   build:
     commands:
